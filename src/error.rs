@@ -6,7 +6,9 @@ pub enum Error {
     IoError(std::io::Error),
     MissingInfo(String),
     NotANode(osmpbfreader::objects::OsmObj),
+    NotAWayId(osmpbfreader::objects::OsmId),
     ConversionError(String),
+    GdalError(gdal::errors::Error),
     NodeCountError,
     MakeGraphError
 }
@@ -22,8 +24,12 @@ impl std::fmt::Display for Error {
                 write!(f, "MissingInfo: {}", s),
             Error::NotANode(o) =>
                 write!(f, "Object is not a node: {:?}", o),
+            Error::NotAWayId(o) =>
+                write!(f, "OsmId is not a way id: {:?}", o),
             Error::ConversionError(s) =>
                 write!(f, "ConversionError: {}", s),
+            Error::GdalError(e) =>
+                write!(f, "GdalError: {}", e),
             Error::NodeCountError => 
                 write!(f, "Error counting nodes"),
             Error::MakeGraphError =>

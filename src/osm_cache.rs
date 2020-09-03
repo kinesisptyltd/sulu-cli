@@ -1,5 +1,4 @@
 use std::{
-    fmt,
     collections::{
         HashMap,
         BTreeMap
@@ -13,39 +12,30 @@ use osmpbfreader::{
     OsmPbfReader,
     OsmId,
     OsmObj,
-    Node,
 };
 use serde::{Serialize, Deserialize};
 use crate::{
     graph_config::GraphConfig,
-    pbf_reader::{
-        count_nodes,
-        make_graph,
-        Edge
-    }
+    error::Error,
 };
 
-#[derive(Debug)]
-pub enum Error {
-    PbfError(osmpbfreader::error::Error),
-    IoError(std::io::Error),
-    NodeCountError,
-    MakeGraphError
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Error::IoError(e) => 
-                write!(f, "IoError: {}", e),
-            Error::PbfError(e) =>
-                write!(f, "PbfError: {}", e),
-            Error::NodeCountError => 
-                write!(f, "Error counting nodes"),
-            Error::MakeGraphError =>
-                write!(f, "Error making graph")
+pub fn count_nodes(
+    objs: &BTreeMap<OsmId, OsmObj>
+) -> Result<HashMap<OsmId, usize>, Error> {
+    let mut map = HashMap::new();
+    for (_, obj) in objs {
+        if obj.is_way() {
+            let way = obj.way().unwrap();
+            for nid in &way.nodes {
+                let nid: OsmId = (*nid).into();
+                match map.get_mut(&nid) {
+                    Some(c) => *c += 1,
+                    None => {map.insert(nid, 1); ()}
+                }
+            }
         }
     }
+    Ok(map)
 }
 
 #[derive(Serialize, Deserialize)]
@@ -75,7 +65,6 @@ impl OSMCache {
     where 
         R: Read + Seek
     {
-        let now = std::time::Instant::now();
         let mut cache = pbf.get_objs_and_deps(
             |o| {
                 match o {
@@ -84,11 +73,8 @@ impl OSMCache {
                 }
             }
         ).map_err(Error::PbfError)?;
-        println!("Extracted OSM objects in {}s", now.elapsed().as_secs());
-        let now = std::time::Instant::now();
         let node_count = count_nodes(&cache)
             .map_err(|_| Error::NodeCountError)?;
-        println!("Performed node count in {}s", now.elapsed().as_secs());
         self.osm_cache.append(&mut cache);
         for (k, v) in node_count.into_iter() {
             match self.node_count.get_mut(&k) {
@@ -98,48 +84,4 @@ impl OSMCache {
         }
         Ok(())
     }
-
-    pub fn make_graph(&self) -> Result<Vec<Edge>, Error> {
-        make_graph(&self.osm_cache, &self.node_count)
-            .map_err(|_| Error::MakeGraphError)
-    }
-
-    pub fn make_graph_bbox(&self, bbox: [f64; 4]) -> Result<Vec<Edge>, Error> {
-        let osm_objs: BTreeMap<OsmId, OsmObj> = self.osm_cache
-            .iter()
-            .filter_map(
-                |(i, obj)| {
-                    match obj {
-                        OsmObj::Way(w) => {
-                            if w.nodes
-                                .iter()
-                                .filter_map(|nid| self.osm_cache.get(&OsmId::from(*nid)))
-                                .filter_map(|o| o.node())
-                                .any(|n| in_bbox(n, &bbox)) {
-                                Some((*i, obj.clone()))
-                            } else {
-                                None
-                            }
-                        },
-                        OsmObj::Node(n) => {
-                            if in_bbox(&n, &bbox) {
-                                Some((*i, obj.clone()))
-                            } else {
-                                None
-                            }
-                        },
-                        _ => None
-                    }
-                }
-            )
-            .collect();
-        make_graph(&osm_objs, &self.node_count)
-            .map_err(|_| Error::MakeGraphError)
-    }
-}
-
-
-fn in_bbox(node: &Node, bbox: &[f64; 4]) -> bool {
-    (node.lon() >= bbox[0]) && (node.lat() >= bbox[1]) && (node.lon() <= bbox[2])
-        && (node.lat() <= bbox[3])
 }
