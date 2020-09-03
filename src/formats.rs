@@ -19,34 +19,32 @@ use crate::{
 };
 
 
-#[derive(Debug)]
 pub enum Format {
-    GeoJson(EdgeList<f64>),
-    Gdal(EdgeList<f64>)
+    GeoJson(std::fs::File),
+    Gdal(gdal::vector::Dataset)
 }
 
 impl Format {
-    fn write<P: AsRef<std::path::Path>>(self, path: P) -> Result<(), Error> {
+    pub fn write(self, el: EdgeList<f64>) -> Result<(), Error> {
         match self {
-            Format::GeoJson(el) => {
-                let mut file = std::fs::OpenOptions::new()
-                    .write(true)
-                    .create_new(true)
-                    .open(path)
-                    .map_err(Error::IoError)?;
+            Format::GeoJson(mut file) => {
                 let fc: geojson::FeatureCollection = el.into();
                 let g: geojson::GeoJson = fc.into();
                 file.write_all(&g.to_string().into_bytes())
                     .map_err(Error::IoError)?;
             },
-            Format::Gdal(el) => {
+            Format::Gdal(mut ds) => {
                 let srs = gdal::spatial_ref::SpatialRef::from_epsg(4326)
                     .map_err(Error::GdalError)?;
-                let mut ds = gdal::vector::Dataset::open(path.as_ref())
-                    .map_err(Error::GdalError)?;
                 let layer = ds.create_layer_ext("graph",
-                                                    Some(&srs),
-                                                    gdal::vector::OGRwkbGeometryType::wkbLineString)
+                                                Some(&srs),
+                                                gdal::vector::OGRwkbGeometryType::wkbLineString)
+                    .map_err(Error::GdalError)?;
+                layer.create_defn_fields(&[("way_osmid", gdal::vector::OGRFieldType::OFTString),
+                                           ("start_node_id", gdal::vector::OGRFieldType::OFTString),
+                                           ("end_node_id", gdal::vector::OGRFieldType::OFTString),
+                                           ("graph_config_option", gdal::vector::OGRFieldType::OFTString),
+                                           ("length_m", gdal::vector::OGRFieldType::OFTReal)])
                     .map_err(Error::GdalError)?;
                 for edge in el.edges.iter() {
                     let geom = linestring_to_gdal(&edge.geometry)?;

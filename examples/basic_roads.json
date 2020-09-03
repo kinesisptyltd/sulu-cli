@@ -1,0 +1,31 @@
+{
+  "name": "basic-roads",
+  "options": [
+    {
+      "name": "main-road",
+      "requires": [
+        { 
+          "key": "highway", 
+          "kind": {
+            "in-list": [
+              "motorway",
+              "primary",
+              "secondary",
+              "tertiary",
+              "trunk",
+              "residential",
+              "motorway_link",
+              "primary_link",
+              "secondary_link",
+              "tertiary_link",
+              "trunk_link"
+            ]
+          }
+        }
+      ],
+      "excludes": [
+        { "key": "access", "kind": {"exact": "no"} }
+      ]
+    }
+  ]
+}
