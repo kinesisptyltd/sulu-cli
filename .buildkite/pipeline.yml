@@ -1,0 +1,34 @@
+steps:
+  - label: "Test"
+    command:
+      - "squirrel restore Cargo.lock target/debug ci.cache.sydney.kinesis.org"
+      - "cargo test"
+      - "squirrel cache Cargo.lock target/debug ci.cache.sydney.kinesis.org"
+    plugins:
+      - docker#v3.2.0:
+          image: "722349771793.dkr.ecr.ap-southeast-2.amazonaws.com/rust-ci:latest"
+          mount-ssh-agent: true
+          environment:
+            - "AWS_DEFAULT_REGION"
+            - "CI"
+            - "BUILDKITE_COMMIT"
+            - "BUILDKITE_BRANCH"
+
+  - label: "Publish executable"
+    branches: "main"
+    command:
+      - "./bin/ci"
+    plugins:
+      - docker#v3.2.0:
+          image: "722349771793.dkr.ecr.ap-southeast-2.amazonaws.com/rust-ci:latest"
+          mount-ssh-agent: true
+          environment:
+            - "AWS_DEFAULT_REGION"
+            - "CI"
+            - "BUILDKITE_COMMIT"
+            - "BUILDKITE_BRANCH"
+
+  - label: "Publish containter"
+    branches: "main"
+    command:
+      - "./bin/docker-push"
