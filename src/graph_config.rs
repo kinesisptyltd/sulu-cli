@@ -82,16 +82,14 @@ mod tests {
         let gco: GraphConfigOption = serde_json::from_str(s).unwrap();
         assert_eq!(gco.name, "big-road");
 
-        let tags = vec![("highway".to_string(), "primary".to_string())];
-        let tags2: Vec<(&String, &String)> = tags.iter().map(|(k,v)| (k, v)).collect();
+        let tags: Tags = vec![("highway".into(), "primary".into())].into_iter().collect();
 
-        assert!(gco.check_match(&tags2));
+        assert!(gco.check_match(&tags));
 
-        let tags = vec![
-            ("highway".to_string(), "primary".to_string()),
-            ("access".to_string(), "no".to_string())
-        ];
-        let tags2: Vec<(&String, &String)> = tags.iter().map(|(k,v)| (k, v)).collect();
-        assert!(!gco.check_match(&tags2));
+        let tags: Tags = vec![
+            ("highway".into(), "primary".into()),
+            ("access".into(), "no".into())
+        ].into_iter().collect();
+        assert!(!gco.check_match(&tags));
     }
 }

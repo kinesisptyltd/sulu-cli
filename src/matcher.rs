@@ -38,7 +38,7 @@ mod tests {
     fn test_de() {
         let s = "{\"key\": \"highway\", \"kind\": \"all\"}";
         let m: Matcher = serde_json::from_str(s).unwrap();
-        assert_eq!(m.key, "highway");
+        assert_eq!(m.key.as_str(), "highway");
         assert!(match m.kind {
             MatchKind::All => true,
             _ => false
@@ -46,17 +46,17 @@ mod tests {
 
         let s = "{\"key\": \"highway\", \"kind\": {\"exact\": \"primary\"}}";
         let m: Matcher = serde_json::from_str(s).unwrap();
-        assert_eq!(m.key, "highway");
+        assert_eq!(m.key.as_str(), "highway");
         assert!(match m.kind {
-            MatchKind::Exact(v) => v == "primary",
+            MatchKind::Exact(v) => v.as_str() == "primary",
             _ => false
         });
 
         let s = "{\"key\": \"highway\", \"kind\": {\"in-list\": [\"primary\", \"secondary\"]}}";
         let m: Matcher = serde_json::from_str(s).unwrap();
-        assert_eq!(m.key, "highway");
+        assert_eq!(m.key.as_str(), "highway");
         assert!(match m.kind {
-            MatchKind::InList(v) => v.contains(&"primary".to_string()),
+            MatchKind::InList(v) => v.contains(&"primary".into()),
             _ => false
         });
     }
