@@ -82,7 +82,7 @@ fn edges_from_osm_id(
                     Some(sid) => {
                         let coords = Coordinate { x: node.lon().into(), y: node.lat().into() };
                         points.push(coords);
-                        if (count > &1) && (points.len() > 1) {
+                        if (count > &1) && start != end {
                             points.shrink_to_fit();
                             let geom: LineString<f64> = points.clone().into();
                             edges.push( Edge {
@@ -96,6 +96,7 @@ fn edges_from_osm_id(
                             points = Vec::with_capacity(max_edges);
                             points.push(coords);
                             start = Some(*nid);
+                            end = None;
                         }
                     },
                     // start new edge
@@ -104,6 +105,7 @@ fn edges_from_osm_id(
                         let coords = Coordinate { x: node.lon().into(), y: node.lat().into() };
                         points.push(coords);
                         start = Some(*nid);
+                        end = None;
                     }
                 }
             },
@@ -134,6 +136,24 @@ fn edges_from_osm_id(
             }
         }
     }
+    // Finalise the last edge
+    match end {
+        // There's a dangling edge, end it
+        Some(nid) => {
+            let geom: LineString<f64> = points.clone().into();
+            edges.push( Edge {
+                way_osmid: osmid.way().ok_or(Error::NotAWayId(*osmid))?,
+                start_node_id: start.ok_or(Error::MakeGraphError)?,
+                end_node_id: nid,
+                graph_config_option: gco.clone(),
+                length_m: geom.geodesic_length(),
+                geometry: geom
+            });
+        },
+        // There's no dangling edge, continue
+        None => () 
+    }
+
     edges.shrink_to_fit();
     Ok(Some(edges))
 }
