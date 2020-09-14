@@ -69,7 +69,7 @@ sulu input.osm.pbf output.gpkg config.json -f gdal -d gpkg
 
 ## The graph config file
 The graph config file is a json file that determines what ways are selected to be included in the graph.
-An example can be seen in [the examples folder](https://raw.githubusercontent.com/kinesisptyltd/sulu-cli/main/examples/basic_roads.json?token=ACNOJ7TRASMQ23LABFHS2FK7LK7YI).
+An example can be seen in [the examples folder](https://github.com/kinesisptyltd/sulu-cli/blob/main/examples/basic_roads.json).
 
 A brief description of the config file is included below. A way will be selected if it matches the Matchers in `requires` and not the Matchers in `excludes`.
 If the way would match multiple Graph Config Options it is assigned the first option that it matches.
