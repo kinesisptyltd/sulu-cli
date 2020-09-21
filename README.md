@@ -34,7 +34,7 @@ Once rust and cargo are installed, use the following to install sulu
 ```
 git clone https://github.com/kinesisptyltd/sulu-cli.git
 cd sulu-cli
-cargo install .
+cargo install --path=.
 ```
 
 # Usage
