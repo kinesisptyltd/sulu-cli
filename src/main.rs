@@ -70,8 +70,11 @@ fn main() {
         Some("gdal") => {
             let driver_name = matches.value_of("driver")
                 .unwrap_or("gpkg");
-            let driver = gdal::vector::Driver::get(driver_name).unwrap();
-            let dataset = driver.create(std::path::Path::new(output_path)).unwrap();
+            let driver = gdal::Driver::get(driver_name).unwrap();
+            let output_path = std::path::Path::new(output_path)
+                .to_str()
+                .expect("Not a valid path");
+            let dataset = driver.create_vector_only(output_path).unwrap();
             let format = Format::Gdal(dataset);
             format.write(edge_list).unwrap();
         },
