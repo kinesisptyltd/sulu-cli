@@ -1,6 +1,6 @@
 [package]
 name = "sulu"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Tom Watson <tom.watson@kinesis.org>"]
 edition = "2018"
 license = "MIT"
@@ -13,8 +13,7 @@ serde_json = "^1.0"
 osmpbfreader = "^0.14"
 geo-types = "^0.6"
 geo = "^0.14"
-#gdal = { version = "^0.6.0", features = ["gdal_2_2"] }
-gdal = { git = "https://github.com/georust/gdal.git", rev = "2fadecc39c84c317ca023cfaf67fd6fbd0c568a5"}
+gdal = { version = "^0.7.2" }
 geojson = { version = "^0.19", features = ["geo-types"] }
 smartstring = "^0.2.3"
 clap = "^2.33"
