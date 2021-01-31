@@ -21,7 +21,7 @@ use crate::{
 
 pub enum Format {
     GeoJson(std::fs::File),
-    Gdal(gdal::vector::Dataset)
+    Gdal(gdal::Dataset)
 }
 
 impl Format {
@@ -36,13 +36,13 @@ impl Format {
             Format::Gdal(mut ds) => {
                 let srs = gdal::spatial_ref::SpatialRef::from_epsg(4326)
                     .map_err(Error::GdalError)?;
-                let layer = ds.create_layer_ext("graph",
-                                                Some(&srs),
-                                                gdal::vector::OGRwkbGeometryType::wkbLineString)
+                let mut layer = ds.create_layer("graph",
+                                            Some(&srs),
+                                            gdal::vector::OGRwkbGeometryType::wkbLineString)
                     .map_err(Error::GdalError)?;
-                layer.create_defn_fields(&[("way_osmid", gdal::vector::OGRFieldType::OFTString),
-                                           ("start_node_id", gdal::vector::OGRFieldType::OFTString),
-                                           ("end_node_id", gdal::vector::OGRFieldType::OFTString),
+                layer.create_defn_fields(&[("way_osmid", gdal::vector::OGRFieldType::OFTInteger64),
+                                           ("start_node_id", gdal::vector::OGRFieldType::OFTInteger64),
+                                           ("end_node_id", gdal::vector::OGRFieldType::OFTInteger64),
                                            ("graph_config_option", gdal::vector::OGRFieldType::OFTString),
                                            ("length_m", gdal::vector::OGRFieldType::OFTReal)])
                     .map_err(Error::GdalError)?;
@@ -56,9 +56,9 @@ impl Format {
                     // gdal 0.6.0 doesn't have an Integer64 FieldValue yet, but there's an open
                     // PR to implement it: https://github.com/georust/gdal/pull/80
                     // For now we'll just parse the OSM IDs to strings
-                    let field_values = [FieldValue::StringValue(edge.way_osmid.0.to_string()),
-                                        FieldValue::StringValue(edge.start_node_id.0.to_string()),
-                                        FieldValue::StringValue(edge.end_node_id.0.to_string()),
+                    let field_values = [FieldValue::Integer64Value(edge.way_osmid.0),
+                                        FieldValue::Integer64Value(edge.start_node_id.0),
+                                        FieldValue::Integer64Value(edge.end_node_id.0),
                                         FieldValue::StringValue(edge.graph_config_option.name.clone()),
                                         FieldValue::RealValue(edge.length_m)];
                     layer.create_feature_fields(

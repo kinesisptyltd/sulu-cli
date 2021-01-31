@@ -8,7 +8,7 @@ pub enum Error {
     NotANode(osmpbfreader::objects::OsmObj),
     NotAWayId(osmpbfreader::objects::OsmId),
     ConversionError(String),
-    GdalError(gdal::errors::Error),
+    GdalError(gdal::errors::GdalError),
     NodeCountError,
     MakeGraphError
 }
