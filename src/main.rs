@@ -1,7 +1,8 @@
+#![cfg(feature="gdal")]
 use std::convert::TryInto;
 use clap::{
     Arg,
-    App,
+    App
 };
 use serde_json::from_reader;
 use sulu::{
@@ -10,6 +11,7 @@ use sulu::{
     edge_list::EdgeList,
     formats::Format
 };
+
 
 fn main() {
     let matches = App::new("Sulu")

@@ -8,6 +8,7 @@ pub enum Error {
     NotANode(osmpbfreader::objects::OsmObj),
     NotAWayId(osmpbfreader::objects::OsmId),
     ConversionError(String),
+    #[cfg(feature="gdal")]
     GdalError(gdal::errors::GdalError),
     NodeCountError,
     MakeGraphError
@@ -28,6 +29,7 @@ impl std::fmt::Display for Error {
                 write!(f, "OsmId is not a way id: {:?}", o),
             Error::ConversionError(s) =>
                 write!(f, "ConversionError: {}", s),
+            #[cfg(feature="gdal")]
             Error::GdalError(e) =>
                 write!(f, "GdalError: {}", e),
             Error::NodeCountError => 

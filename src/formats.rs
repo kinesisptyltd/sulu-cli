@@ -5,7 +5,9 @@ use serde_json::{
     Map,
     Value
 };
+#[cfg(feature="gdal")]
 use geo_types::LineString;
+#[cfg(feature="gdal")]
 use gdal::{
     self,
     vector::FieldValue,
@@ -21,6 +23,7 @@ use crate::{
 
 pub enum Format {
     GeoJson(std::fs::File),
+    #[cfg(feature="gdal")]
     Gdal(gdal::Dataset)
 }
 
@@ -33,6 +36,7 @@ impl Format {
                 file.write_all(&g.to_string().into_bytes())
                     .map_err(Error::IoError)?;
             },
+            #[cfg(feature="gdal")]
             Format::Gdal(mut ds) => {
                 let srs = gdal::spatial_ref::SpatialRef::from_epsg(4326)
                     .map_err(Error::GdalError)?;
@@ -74,6 +78,7 @@ impl Format {
 }
 
 
+#[cfg(feature="gdal")]
 fn linestring_to_gdal(linestring: &LineString<f64>) -> Result<gdal::vector::Geometry, Error> {
     // gdal version 0.6.0 relies on geo-types 0.4.0 (not 0.6.0), but I don't want to change
     // versions of geo-types, so we can just hack this in here, and use the ToGdal
