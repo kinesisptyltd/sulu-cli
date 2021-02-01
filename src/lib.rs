@@ -4,6 +4,7 @@ pub mod error;
 pub mod edge_list;
 pub mod osm_cache;
 pub mod formats;
+pub mod visibility;
 
 #[cfg(test)]
 mod tests {
