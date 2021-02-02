@@ -20,10 +20,12 @@ where
     Line<T>: Intersects<Line<T>>
 {
     let h: Coordinate<_> = [T::one(), T::zero()].into();
-    let mut angles: Vec<_> = other_vertices.iter()
-        .map(|&x| (angle(x - v, h), x.clone()))
+    let mut queue: Vec<Coordinate<T>> = other_vertices.iter()
+        .cloned()
         .collect();
-    angles.sort_by(|(a1, _), (a2, _)| a1.partial_cmp(a2).unwrap());
+    
+    // TODO: Remove this unwrap
+    queue.sort_by(|&x1, &x2| angle(x1 - v, h).partial_cmp(&angle(x2 - v, h)).unwrap());
     let mut seeing: Vec<Line<T>> = edges.iter()
         .filter(|e| (e.start.y - v.y) * (v.y - e.end.y) >= T::zero()) // e crosses the horizontal subtended from v
         .cloned()
@@ -31,9 +33,11 @@ where
 
     let mut new_edges = vec![];
 
-    for (_, x)  in angles {
+    for x in queue {
         let line = Line::new(v, x);
-        if !seeing.iter().any(|e| line.intersects(e)) {
+        if !seeing.iter()
+            .filter(|e| (e.start != x) && (e.end != x))
+            .any(|e| line.intersects(e)) {
             // x is visible from v
             new_edges.push((v, x.clone()));
         }
@@ -42,18 +46,22 @@ where
             .cloned()
             .collect();
         let remove_these: Vec<Line<T>> = seeing.iter()
-            .filter(|&s| edges_with_x.iter().any(|&e| *s == e))
+            .filter(|s| contains(&edges_with_x, s))
             .cloned()
             .collect();
         let mut add_these: Vec<Line<T>> = edges_with_x.into_iter()
-            .filter(|e| seeing.iter().any(|s| e != s))
+            .filter(|e| !contains(&seeing, e))
             .collect();
         seeing = seeing.into_iter()
-            .filter(|s| remove_these.iter().any(|e| s != e))
+            .filter(|s| !contains(&remove_these, s))
             .collect();
-        seeing.append(&mut add_these)
+        seeing.append(&mut add_these);
     }
     new_edges
+}
+
+fn contains<T: std::cmp::PartialEq>(v: &Vec<T>, elem: &T) -> bool {
+    v.iter().any(|i| *i == *elem)
 }
 
 fn angle<T: CoordinateType + Real>(u: Coordinate<T>, v: Coordinate<T>) -> T {
@@ -84,6 +92,34 @@ mod tests {
         let expected = vec![
             ((0.0, 0.0).into(), (1.0, 0.0).into()),
             ((0.0, 0.0).into(), (1.0, 1.0).into()),
+            ((0.0, 0.0).into(), (0.0, 1.0).into())];
+        new_edges.into_iter()
+            .zip(expected.into_iter())
+            .for_each(|(e, exp)| assert_eq!(e, exp));
+    }
+
+    #[test]
+    fn test_an_obstacle() {
+        let v = (0.0, 0.0).into();
+        let other_v = vec![
+            (0.0, 1.0).into(), // |
+            (1.0, 1.0).into(), // |
+            (1.0, 0.0).into(), // -> Corners of the outer square
+            (0.25, 0.25).into(),  // |   
+            (0.25, 0.75).into(),  // |  
+            (0.75, 0.75).into(),  // |  
+            (0.75, 0.25).into()]; // -> Corners of the obstacle 
+        let edges = vec![
+            [(0.25, 0.25), (0.25, 0.75)].into(),
+            [(0.25, 0.75), (0.75, 0.75)].into(),
+            [(0.75, 0.75), (0.75, 0.25)].into(),
+            [(0.75, 0.25), (0.25, 0.25)].into()]; // The inner square obstacle
+        let new_edges = rotational_sweep(v, &other_v, &edges);
+        let expected = vec![
+            ((0.0, 0.0).into(), (1.0, 0.0).into()),
+            ((0.0, 0.0).into(), (0.75, 0.25).into()),
+            ((0.0, 0.0).into(), (0.25, 0.25).into()),
+            ((0.0, 0.0).into(), (0.25, 0.75).into()),
             ((0.0, 0.0).into(), (0.0, 1.0).into())];
         new_edges.into_iter()
             .zip(expected.into_iter())
