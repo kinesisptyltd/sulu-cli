@@ -1,2 +1,2 @@
 mod rotational_sweep;
-pub mod construct;
+mod construct;
