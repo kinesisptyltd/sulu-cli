@@ -1,6 +1,6 @@
 [package]
 name = "sulu"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Tom Watson <tom.watson@kinesis.org>"]
 edition = "2018"
 license = "MIT"
