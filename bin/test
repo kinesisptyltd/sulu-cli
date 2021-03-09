@@ -1,6 +1,8 @@
 #!/bin/sh -eux
 
-apt-get install -y libgdal-dev
 squirrel restore Cargo.lock target/debug ci.cache.sydney.kinesis.org
-cargo test
+cargo test --no-default-features
+
+apt-get install -y libgdal-dev
+cargo test --features "gdal"
 squirrel cache Cargo.lock target/debug ci.cache.sydney.kinesis.org
