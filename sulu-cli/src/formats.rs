@@ -1,29 +1,23 @@
 use std::io::Write;
 use geojson;
-use serde_json::{
-    json,
-    Map,
-    Value
-};
-#[cfg(feature="gdal")]
-use geo_types::LineString;
-#[cfg(feature="gdal")]
+#[cfg(feature="formats-gdal")]
 use gdal::{
     self,
     vector::FieldValue,
 };
-use crate::{
+use sulu_lib::{
     error::Error,
     edge_list::{
-        Edge,
-        EdgeList
+        EdgeList,
     }
 };
+#[cfg(feature="formats-gdal")]
+use sulu_lib::edge_list::linestring_to_gdal;
 
 
 pub enum Format {
     GeoJson(std::fs::File),
-    #[cfg(feature="gdal")]
+    #[cfg(feature="formats-gdal")]
     Gdal(gdal::Dataset)
 }
 
@@ -36,7 +30,7 @@ impl Format {
                 file.write_all(&g.to_string().into_bytes())
                     .map_err(Error::IoError)?;
             },
-            #[cfg(feature="gdal")]
+            #[cfg(feature="formats-gdal")]
             Format::Gdal(mut ds) => {
                 let srs = gdal::spatial_ref::SpatialRef::from_epsg(4326)
                     .map_err(Error::GdalError)?;
@@ -57,9 +51,6 @@ impl Format {
                                        "end_node_id", 
                                        "graph_config_option", 
                                        "length_m"];
-                    // gdal 0.6.0 doesn't have an Integer64 FieldValue yet, but there's an open
-                    // PR to implement it: https://github.com/georust/gdal/pull/80
-                    // For now we'll just parse the OSM IDs to strings
                     let field_values = [FieldValue::Integer64Value(edge.way_osmid.0),
                                         FieldValue::Integer64Value(edge.start_node_id.0),
                                         FieldValue::Integer64Value(edge.end_node_id.0),
@@ -76,56 +67,3 @@ impl Format {
         Ok(())
     }
 }
-
-
-#[cfg(feature="gdal")]
-fn linestring_to_gdal(linestring: &LineString<f64>) -> Result<gdal::vector::Geometry, Error> {
-    // gdal version 0.6.0 relies on geo-types 0.4.0 (not 0.6.0), but I don't want to change
-    // versions of geo-types, so we can just hack this in here, and use the ToGdal
-    // trait when gdal catches up
-    let mut geom = gdal::vector::Geometry::empty(gdal::vector::OGRwkbGeometryType::wkbLineString)
-        .map_err(Error::GdalError)?;
-    for (i, pt) in linestring.points_iter().enumerate() {
-        geom.set_point_2d(i, (pt.x(), pt.y()));
-    }
-    Ok(geom)
-}
-
-
-impl From<Edge<f64>> for geojson::Feature {
-    fn from(edge: Edge<f64>) -> geojson::Feature {
-        let mut props: Map<String, Value> = Map::new();
-        props.insert("way_osmid".to_string(), json!(edge.way_osmid));
-        props.insert("start_node_id".to_string(), json!(edge.start_node_id));
-        props.insert("end_node_id".to_string(), json!(edge.end_node_id));
-        props.insert("graph_config_option".to_string(), json!(edge.graph_config_option.name));
-        props.insert("length_m".to_string(), json!(edge.length_m));
-        let geom = geojson::Geometry {
-            bbox: None,
-            foreign_members: None,
-            value: (&edge.geometry).into()
-        };
-        geojson::Feature {
-            bbox: None,
-            geometry: Some(geom),
-            id: None,
-            properties: Some(props),
-            foreign_members: None
-        }
-    }
-}
-
-impl From<EdgeList<f64>> for geojson::FeatureCollection {
-    fn from(el: EdgeList<f64>) -> geojson::FeatureCollection {
-        geojson::FeatureCollection {
-            bbox: None,
-            foreign_members: None,
-            features: el.edges.into_iter().map(|e| e.into()).collect()
-        }
-    }
-}
-
-// impl From<Edge<f64>> for gdal::vector::Feature {
-//     fn from(edge: Edge<f64>) -> gdal::vector::Feature {
-//     }
-// }
