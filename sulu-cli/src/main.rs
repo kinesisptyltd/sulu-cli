@@ -16,7 +16,7 @@ use sulu_lib::{
 
 fn main() {
     let app = App::new("Sulu")
-        .version("0.1.0")
+        .version("0.2.0")
         .author("Tom Watson <tom.watson@kinesis.org>")
         .about("Converts osm.pbf files into routable networks")
         .arg(Arg::with_name("INPUT")

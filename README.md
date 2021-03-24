@@ -34,13 +34,13 @@ Once rust and cargo are installed, use the following to install sulu
 ```
 git clone https://github.com/kinesisptyltd/sulu-cli.git
 cd sulu-cli
-cargo install --path=.
+cargo install --path=sulu-cli
 ```
 
 # Usage
 ```
 >>> sulu --help
-Sulu 0.1.0
+Sulu 0.2.0
 Tom Watson <tom.watson@kinesis.org>
 Converts osm.pbf files into routable networks
 
@@ -52,9 +52,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -f <format>        How sulu will write the output file [default: geojson]  [possible values: geojson, gdal]
-    -d <driver>        Short name of gdal driver to use to write the output. See
-                       https://gdal.org/drivers/vector/index.html [default: gpkg]
+    -d, --gdal-driver <gdal-driver>    Use gdal to output file with a specific driver
 
 ARGS:
     <INPUT>           The osm.pbf file to process
@@ -64,7 +62,7 @@ ARGS:
 
 For example:
 ```
-sulu input.osm.pbf output.gpkg config.json -f gdal -d gpkg
+sulu input.osm.pbf output.gpkg config.json -d gpkg
 ```
 
 ## The graph config file
