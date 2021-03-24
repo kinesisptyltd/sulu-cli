@@ -13,6 +13,7 @@ use crate::{
     osm_cache::OSMCache,
     error::Error,
 };
+#[cfg(feature="formats-geojson")]
 use serde_json::{json, Value, Map};
 #[cfg(feature="formats-geojson")]
 use geojson;

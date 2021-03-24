@@ -1,8 +1,15 @@
 #!/bin/sh -eux
 
 squirrel restore Cargo.lock target/debug ci.cache.sydney.kinesis.org
+
+cd sulu-lib
 cargo test --no-default-features
 
+cargo test --features "formats-geojson"
+
 apt-get install -y libgdal-dev
-cargo test --features "gdal"
+cargo test --features "formats-gdal"
+
+cd ..
+cargo test
 squirrel cache Cargo.lock target/debug ci.cache.sydney.kinesis.org
