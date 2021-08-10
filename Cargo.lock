@@ -97,9 +97,9 @@ dependencies = [
 
 [[package]]
 name = "flat_map"
-version = "0.0.9"
+version = "0.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9dbb562ef75bc322a6d4b5860794457438b89079f23471fb2ba876c2f39b24e5"
+checksum = "e4fa2a56a33c493fc81acbad4676c599cf2b128f21462a020043ea1eee46244f"
 dependencies = [
  "serde",
  "serde_derive",
@@ -309,9 +309,9 @@ dependencies = [
 
 [[package]]
 name = "osmpbfreader"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c35ee93f436bd4685458c4f27df8071f7ff10ee4f9fadf1d4cfd14a940bc5672"
+checksum = "f965413d4f15fe4cd9ef3ca8eda7d60d14a6bf20db0d4fe13d42c19f14b2501b"
 dependencies = [
  "byteorder",
  "flat_map",
@@ -320,9 +320,8 @@ dependencies = [
  "protobuf",
  "protobuf-codegen-pure",
  "pub-iterator-type",
- "rental",
+ "self_cell",
  "serde",
- "serde_derive",
  "smartstring",
 ]
 
@@ -409,27 +408,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rental"
-version = "0.5.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8545debe98b2b139fb04cad8618b530e9b07c152d99a5de83c860b877d67847f"
-dependencies = [
- "rental-impl",
- "stable_deref_trait",
-]
-
-[[package]]
-name = "rental-impl"
-version = "0.5.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "475e68978dc5b743f2f40d8e0a8fdc83f1c5e78cbf4b8fa5e74e73beebc340de"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "rstar"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -446,6 +424,12 @@ name = "ryu"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"
+
+[[package]]
+name = "self_cell"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "884968d18b43d9df370d38acd11b57dd2aa169f6e442a38ab258be581fccf069"
 
 [[package]]
 name = "semver"
@@ -532,7 +516,7 @@ checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 
 [[package]]
 name = "sulu"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "clap",
  "gdal",
@@ -544,7 +528,7 @@ dependencies = [
 
 [[package]]
 name = "sulu-lib"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "gdal",
  "geo",
