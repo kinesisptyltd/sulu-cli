@@ -1,4 +1,7 @@
-use std::io::Write;
+use std::{
+    io::Write,
+    default::Default,
+};
 use geojson;
 #[cfg(feature="formats-gdal")]
 use gdal::{
@@ -34,9 +37,13 @@ impl Format {
             Format::Gdal(mut ds) => {
                 let srs = gdal::spatial_ref::SpatialRef::from_epsg(4326)
                     .map_err(Error::GdalError)?;
-                let mut layer = ds.create_layer("graph",
-                                            Some(&srs),
-                                            gdal::vector::OGRwkbGeometryType::wkbLineString)
+                let mut layer = ds.create_layer(
+                    gdal::LayerOptions { 
+                        name: "graph",
+                        srs: Some(&srs),
+                        ty: gdal::vector::OGRwkbGeometryType::wkbLineString,
+                        ..Default::default()
+                    })
                     .map_err(Error::GdalError)?;
                 layer.create_defn_fields(&[("way_osmid", gdal::vector::OGRFieldType::OFTInteger64),
                                            ("start_node_id", gdal::vector::OGRFieldType::OFTInteger64),

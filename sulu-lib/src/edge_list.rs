@@ -4,7 +4,7 @@ use std::convert::TryFrom;
 use geo::{
     LineString,
     Coordinate,
-    CoordinateType,
+    CoordNum,
     algorithm::geodesic_length::GeodesicLength,
 };
 use osmpbfreader::{OsmId, WayId, NodeId};
@@ -21,7 +21,7 @@ use geojson;
 use gdal;
 
 #[derive(Debug)]
-pub struct Edge<T: CoordinateType> {
+pub struct Edge<T: CoordNum> {
     pub way_osmid: WayId,
     pub start_node_id: NodeId,
     pub end_node_id: NodeId,
@@ -31,7 +31,7 @@ pub struct Edge<T: CoordinateType> {
 }
 
 #[derive(Debug)]
-pub struct EdgeList<T: CoordinateType> {
+pub struct EdgeList<T: CoordNum> {
     pub edges: Vec<Edge<T>>
 }
 

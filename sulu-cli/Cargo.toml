@@ -1,6 +1,6 @@
 [package]
 name = "sulu"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Tom Watson <tom.watson@kinesis.org>"]
 edition = "2018"
 license = "MIT"
@@ -8,9 +8,9 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-gdal = { version = "^0.7.2", optional=true }
-geo-types = "^0.6"
-geojson = { version = "^0.19", features = ["geo-types"], optional=true }
+gdal = { version = "^0.9", optional=true }
+geo-types = "^0.7"
+geojson = { version = "^0.22", features = ["geo-types"], optional=true }
 clap = "^2.33"
 serde_json = "^1.0"
 sulu-lib = { path = "../sulu-lib/" }
