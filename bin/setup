@@ -1,0 +1,44 @@
+#!/bin/sh -eu
+
+# Bootstrap the project for development from a fresh clone.
+# Idempotent: safe to run multiple times.
+
+cd "$(dirname "$0")/.."
+
+if ! command -v cargo >/dev/null 2>&1; then
+    echo "error: cargo not found. Install Rust via https://rustup.rs/" >&2
+    exit 1
+fi
+
+# Install GDAL system library (required for the formats-gdal feature).
+if ! command -v gdal-config >/dev/null 2>&1; then
+    if [ "$(uname -s)" = "Darwin" ]; then
+        if command -v brew >/dev/null 2>&1; then
+            brew list gdal >/dev/null 2>&1 || brew install gdal
+        else
+            echo "warning: Homebrew not found; install gdal manually." >&2
+        fi
+    elif command -v apt-get >/dev/null 2>&1; then
+        if [ "$(id -u)" -eq 0 ]; then
+            apt-get update
+            apt-get install -y libgdal-dev
+        else
+            sudo apt-get update
+            sudo apt-get install -y libgdal-dev
+        fi
+    else
+        echo "warning: unknown platform; install gdal manually." >&2
+    fi
+fi
+
+# Pre-fetch cargo dependencies.
+cargo fetch --locked
+
+# Build the workspace with all feature combinations exercised in CI so
+# subsequent test runs are fast.
+(cd sulu-lib && cargo build --no-default-features)
+(cd sulu-lib && cargo build --features "formats-geojson")
+(cd sulu-lib && cargo build --features "formats-gdal")
+cargo build
+
+echo "setup complete"
