@@ -3,8 +3,8 @@ use serde_json;
 use osmpbfreader::objects::Tags;
 use crate::matcher::{Matcher};
 
-#[serde(rename_all="kebab-case")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all="kebab-case")]
 pub struct GraphConfigOption {
     pub name: String,
     pub requires: Vec<Matcher>,
@@ -28,8 +28,8 @@ impl GraphConfigOption {
     }
 }
 
-#[serde(rename_all="kebab-case")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all="kebab-case")]
 pub struct GraphConfig {
     pub name: String,
     pub options: Vec<GraphConfigOption>

@@ -1,16 +1,16 @@
 use serde::{Serialize, Deserialize};
 use smartstring::alias::String;
 
-#[serde(rename_all="kebab-case")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all="kebab-case")]
 pub enum MatchKind {
     InList(Vec<String>),
     Exact(String),
     All
 }
 
-#[serde(rename_all="kebab-case")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all="kebab-case")]
 pub struct Matcher {
     pub key: String,
     pub kind: MatchKind
