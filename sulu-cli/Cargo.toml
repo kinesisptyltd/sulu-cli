@@ -11,7 +11,7 @@ license = "MIT"
 gdal = { version = "^0.7.2", optional=true }
 geo-types = "^0.6"
 geojson = { version = "^0.19", features = ["geo-types"], optional=true }
-clap = "^2.33"
+clap = "^4.6"
 serde_json = "^1.0"
 sulu-lib = { path = "../sulu-lib/" }
 
