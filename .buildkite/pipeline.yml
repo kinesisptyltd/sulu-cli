@@ -5,7 +5,7 @@ steps:
       - "bin/test"
     plugins:
       - docker#v3.2.0:
-          image: "722349771793.dkr.ecr.ap-southeast-2.amazonaws.com/bookworm-rust:latest"
+          image: "722349771793.dkr.ecr.ap-southeast-2.amazonaws.com/trixie-rust:latest"
           mount-ssh-agent: true
           environment:
             - "AWS_DEFAULT_REGION"
