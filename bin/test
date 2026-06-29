@@ -7,7 +7,7 @@ cargo test --no-default-features
 
 cargo test --features "formats-geojson"
 
-apt-get install -y libgdal-dev
+apt-get update && apt-get install -y libgdal-dev
 cargo test --features "formats-gdal"
 
 cd ..
