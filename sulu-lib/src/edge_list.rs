@@ -174,10 +174,17 @@ impl From<Edge<f64>> for geojson::Feature {
         props.insert("end_node_id".to_string(), json!(edge.end_node_id));
         props.insert("graph_config_option".to_string(), json!(edge.graph_config_option.name));
         props.insert("length_m".to_string(), json!(edge.length_m));
+        // geojson 1.0's geo-types conversion targets geo-types 0.7, but our geometry is
+        // geo-types 0.6, so build the LineString value directly from the coordinates.
+        let value = geojson::GeometryValue::LineString {
+            coordinates: edge.geometry.0.iter()
+                .map(|c| geojson::Position::from([c.x, c.y]))
+                .collect()
+        };
         let geom = geojson::Geometry {
             bbox: None,
             foreign_members: None,
-            value: (&edge.geometry).into()
+            value
         };
         geojson::Feature {
             bbox: None,
