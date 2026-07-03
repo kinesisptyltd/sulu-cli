@@ -807,7 +807,7 @@ version = "0.2.0"
 dependencies = [
  "clap",
  "gdal",
- "geo-types 0.6.2",
+ "geo-types 0.7.19",
  "geojson",
  "serde_json",
  "sulu-lib",
@@ -819,7 +819,7 @@ version = "0.2.1"
 dependencies = [
  "gdal",
  "geo",
- "geo-types 0.6.2",
+ "geo-types 0.7.19",
  "geojson",
  "osmpbfreader",
  "serde",
