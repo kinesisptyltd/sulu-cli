@@ -3,7 +3,7 @@ pub mod formats;
 use std::convert::TryInto;
 use clap::{
     Arg,
-    App
+    Command
 };
 use serde_json::from_reader;
 use crate::formats::Format;
@@ -15,37 +15,36 @@ use sulu_lib::{
 
 
 fn main() {
-    let app = App::new("Sulu")
+    let app = Command::new("Sulu")
         .version("0.2.0")
         .author("Tom Watson <tom.watson@kinesis.org>")
         .about("Converts osm.pbf files into routable networks")
-        .arg(Arg::with_name("INPUT")
+        .arg(Arg::new("INPUT")
              .help("The osm.pbf file to process")
              .required(true)
              .index(1))
-        .arg(Arg::with_name("OUTPUT")
+        .arg(Arg::new("OUTPUT")
              .help("The output file")
              .required(true)
              .index(2))
-        .arg(Arg::with_name("GRAPH-CONFIG")
+        .arg(Arg::new("GRAPH-CONFIG")
              .required(true)
              .help("File containing the definition of the graph")
              .index(3));
 
     #[cfg(feature="formats-gdal")]
-    let app = app.clone().arg(Arg::with_name("gdal-driver")
+    let app = app.clone().arg(Arg::new("gdal-driver")
                 .long("gdal-driver")
-                .short("d")
+                .short('d')
                 .help("Use gdal to output file with a specific driver")
-                .takes_value(true)
-                .conflicts_with("geojson"));
+                .action(clap::ArgAction::Set));
 
     let matches = app.get_matches();
 
-    let graph_config_path = matches.value_of("GRAPH-CONFIG")
+    let graph_config_path = matches.get_one::<String>("GRAPH-CONFIG")
         .expect("No value for GRAPH-CONFIG");
     let graph_config_file = std::fs::File::open(graph_config_path).unwrap();
-    let input_file_path = matches.value_of("INPUT")
+    let input_file_path = matches.get_one::<String>("INPUT")
         .expect("No value for INPUT");
 
     let graph_config: GraphConfig = from_reader(graph_config_file).unwrap();
@@ -55,10 +54,10 @@ fn main() {
 
     let edge_list: EdgeList<f64> = osm_cache.try_into().unwrap();
 
-    match matches.value_of("gdal-driver") {
+    match matches.get_one::<String>("gdal-driver") {
         #[cfg(feature="formats-gdal")]
         Some(driver_name) => {
-            let output_path = matches.value_of("OUTPUT")
+            let output_path = matches.get_one::<String>("OUTPUT")
                 .expect("No value for OUTPUT");
             let driver = gdal::Driver::get(driver_name)
                 .expect("Not a valid driver name, see https://gdal.org/drivers/vector/index.html");
@@ -70,7 +69,7 @@ fn main() {
             format.write(edge_list).unwrap();
         },
         _ => {
-            let output_path = matches.value_of("OUTPUT")
+            let output_path = matches.get_one::<String>("OUTPUT")
                 .expect("No value for OUTPUT");
             let file = std::fs::OpenOptions::new()
                 .write(true)

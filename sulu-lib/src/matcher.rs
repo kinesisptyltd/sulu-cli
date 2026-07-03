@@ -17,8 +17,8 @@ pub struct Matcher {
 }
 
 impl Matcher {
-    pub fn match_tag(&self, key: &String, value: &String) -> bool {
-        if self.key == *key {
+    pub fn match_tag(&self, key: &str, value: &str) -> bool {
+        if self.key == key {
             return match &self.kind {
                 MatchKind::All => true,
                 MatchKind::Exact(v) => v == value,
