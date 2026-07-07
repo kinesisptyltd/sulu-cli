@@ -59,7 +59,7 @@ fn main() {
         Some(driver_name) => {
             let output_path = matches.get_one::<String>("OUTPUT")
                 .expect("No value for OUTPUT");
-            let driver = gdal::Driver::get(driver_name)
+            let driver = gdal::DriverManager::get_driver_by_name(driver_name)
                 .expect("Not a valid driver name, see https://gdal.org/drivers/vector/index.html");
             let output_path = std::path::Path::new(output_path)
                 .to_str()
