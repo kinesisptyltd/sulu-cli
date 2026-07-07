@@ -3,7 +3,7 @@ use geojson;
 #[cfg(feature="formats-gdal")]
 use gdal::{
     self,
-    vector::FieldValue,
+    vector::{FieldValue, Feature, LayerAccess, LayerOptions},
 };
 use sulu_lib::{
     error::Error,
@@ -34,9 +34,12 @@ impl Format {
             Format::Gdal(mut ds) => {
                 let srs = gdal::spatial_ref::SpatialRef::from_epsg(4326)
                     .map_err(Error::GdalError)?;
-                let mut layer = ds.create_layer("graph",
-                                            Some(&srs),
-                                            gdal::vector::OGRwkbGeometryType::wkbLineString)
+                let layer = ds.create_layer(LayerOptions {
+                                            name: "graph",
+                                            srs: Some(&srs),
+                                            ty: gdal::vector::OGRwkbGeometryType::wkbLineString,
+                                            ..Default::default()
+                                        })
                     .map_err(Error::GdalError)?;
                 layer.create_defn_fields(&[("way_osmid", gdal::vector::OGRFieldType::OFTInteger64),
                                            ("start_node_id", gdal::vector::OGRFieldType::OFTInteger64),
@@ -46,21 +49,28 @@ impl Format {
                     .map_err(Error::GdalError)?;
                 for edge in el.edges.iter() {
                     let geom = linestring_to_gdal(&edge.geometry)?;
-                    let field_names = ["way_osmid", 
-                                       "start_node_id", 
-                                       "end_node_id", 
-                                       "graph_config_option", 
+                    let field_names = ["way_osmid",
+                                       "start_node_id",
+                                       "end_node_id",
+                                       "graph_config_option",
                                        "length_m"];
                     let field_values = [FieldValue::Integer64Value(edge.way_osmid.0),
                                         FieldValue::Integer64Value(edge.start_node_id.0),
                                         FieldValue::Integer64Value(edge.end_node_id.0),
                                         FieldValue::StringValue(edge.graph_config_option.name.clone()),
                                         FieldValue::RealValue(edge.length_m)];
-                    layer.create_feature_fields(
-                        geom,
-                        &field_names,
-                        &field_values)
-                    .map_err(Error::GdalError)?;
+                    let mut feature = Feature::new(layer.defn())
+                        .map_err(Error::GdalError)?;
+                    feature.set_geometry(geom)
+                        .map_err(Error::GdalError)?;
+                    for (name, value) in field_names.iter().zip(field_values.iter()) {
+                        let idx = feature.field_index(name)
+                            .map_err(Error::GdalError)?;
+                        feature.set_field(idx, value)
+                            .map_err(Error::GdalError)?;
+                    }
+                    feature.create(&layer)
+                        .map_err(Error::GdalError)?;
                 }
             }
         }

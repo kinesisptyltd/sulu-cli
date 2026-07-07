@@ -4,9 +4,9 @@ use std::convert::TryFrom;
 use geo::{
     LineString,
     Coordinate,
-    CoordinateType,
     algorithm::geodesic_length::GeodesicLength,
 };
+use geo_types::CoordinateType;
 use osmpbfreader::{OsmId, WayId, NodeId};
 use crate::{
     graph_config::GraphConfigOption,
