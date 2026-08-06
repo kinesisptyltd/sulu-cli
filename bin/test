@@ -2,6 +2,16 @@
 
 squirrel restore Cargo.lock target/debug ci.cache.sydney.kinesis.org
 
+# The restored target/ carries the mtimes of whichever agent built the
+# blob, while the checkout carries this agent's. cargo decides whether our
+# own crates need recompiling by comparing those two unrelated timelines,
+# so with Cargo.lock (the cache key) unchanged it can judge a stale
+# artifact fresh. Clean them so freshness is never consulted for our code;
+# the content-hashed third-party crates survive, which is the part of the
+# cache worth having.
+# https://github.com/kinesisptyltd/nexus/issues/1263
+cargo clean --workspace
+
 cd sulu-lib
 cargo test --no-default-features
 
