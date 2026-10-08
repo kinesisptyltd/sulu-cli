@@ -1,6 +1,5 @@
 steps:
   - label: "Test"
-    branches: "!dependabot/*"
     command:
       - "bin/test"
     plugins:
