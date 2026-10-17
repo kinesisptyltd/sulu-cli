@@ -92,4 +92,18 @@ mod tests {
         ].into_iter().collect();
         assert!(!gco.check_match(&tags));
     }
+
+    // The example users start from has to keep loading through from_path.
+    #[test]
+    fn example_config_loads_and_matches_roads() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../examples/basic_roads.json");
+        let gc = GraphConfig::from_path(path).unwrap();
+        assert_eq!(gc.name, "basic-roads");
+        assert!(!gc.options.is_empty());
+
+        let road: Tags = vec![("highway".into(), "primary".into())].into_iter().collect();
+        assert!(gc.is_match(&road));
+        let building: Tags = vec![("building".into(), "yes".into())].into_iter().collect();
+        assert!(!gc.is_match(&building));
+    }
 }
