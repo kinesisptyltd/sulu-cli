@@ -691,7 +691,7 @@ dependencies = [
  "pub-iterator-type",
  "self_cell",
  "serde",
- "smartstring",
+ "smartstring 1.0.1",
 ]
 
 [[package]]
@@ -1078,6 +1078,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "smartstring"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a155190f9c039a1e9b6e92efbfa50ae68daad98a0fd6d5521a5a09ef782383e8"
+dependencies = [
+ "autocfg",
+ "serde",
+ "static_assertions",
+ "version_check",
+]
+
+[[package]]
 name = "spade"
 version = "2.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1139,7 +1151,7 @@ dependencies = [
  "osmpbfreader",
  "serde",
  "serde_json",
- "smartstring",
+ "smartstring 2.0.0",
 ]
 
 [[package]]
